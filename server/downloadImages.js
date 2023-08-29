@@ -70,66 +70,6 @@ async function getImages(roomId) {
   }
 }
 
-const getImagess = async () => {
-
-  // Launch the browser and open a new blank page
-  const browser = await puppeteer.launch({ headless: "new" });
-  const page = await browser.newPage();
-
-  // Navigate the page to a URL
-  await page.goto(`https://www.airbnb.mx/rooms/661458889608859517?modal=PHOTO_TOUR_SCROLLABLE`);
-
-  const selector = 'div[data-testid="photo-viewer-section"] button[id^="scrollTo"]';
-
-  // Get element
-
-  let elements;
-  try {
-    await page.waitForSelector(selector);
-    elements = await page.$$(selector);
-  } catch (error) {
-    throw error
-  }
-
-  // img elements Array
-  const imageUrls = [];
-  try {
-    // iterate for all the childrend finded with the selector
-    for (const child of elements) {
-      // wait for the div with img rol in dom
-      await child.waitForSelector('div[role="img"]');
-      // set autoscrolling because it has lazy loading
-      await child.$eval('div[role="img"]:last-child', e => {
-        e.scrollIntoView();
-      });
-      // setting a timer to ensure that pictures elements are loaded
-      await new Promise(resolve => setTimeout(resolve, 500));
-      const pictures = await child.$$('picture');
-      // iterate through divs that has picture attribute
-      for (const picture of pictures) {
-        // wait for img to load
-        const img = await picture.$('img');
-        //get all the images elemnts 
-        const imgAttrs = await img.evaluate(el => {
-          return {
-            alt: el.getAttribute('alt'),
-            src: el.getAttribute('src')
-          };
-        });
-        console.log(imgAttrs);
-        // push it to imageUrls Array
-        imageUrls.push(imgAttrs.src);
-      }
-    }
-  } catch (error) {
-    throw error
-  }
-  //for every image url in the array download it
-  imageUrls.map(image => downloadImage(image));
-
-  await browser.close();
-};
-
 function isValidImageExtension(extension) {
   const acceptedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg', '.webp'];
   return acceptedExtensions.includes(extension.toLowerCase());

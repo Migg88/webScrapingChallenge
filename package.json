@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev-back": "nodemon server/downloadImages.js && nodemon server/proxy.js",
+    "dev-back": "nodemon server/proxy.js",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
